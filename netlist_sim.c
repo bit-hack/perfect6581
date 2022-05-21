@@ -26,9 +26,11 @@
  *
  ************************************************************/
 
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "types.h"
 
 /* the smallest types to fit the numbers */
@@ -48,7 +50,7 @@ typedef unsigned long long bitmap_t;
 #define BITMAP_MASK 63
 #define ONE 1ULL
 #else
-typedef unsigned int bitmap_t;
+typedef uint32_t bitmap_t;
 #define BITMAP_SHIFT 5
 #define BITMAP_MASK 31
 #define ONE 1U
@@ -134,7 +136,7 @@ bitmap_clear(bitmap_t *bitmap, count_t count)
 }
 
 static inline void
-set_bitmap(bitmap_t *bitmap, int index, BOOL state)
+set_bitmap(bitmap_t *bitmap, int index, bool state)
 {
 	if (state)
 		bitmap[index>>BITMAP_SHIFT] |= ONE << (index & BITMAP_MASK);
@@ -142,7 +144,7 @@ set_bitmap(bitmap_t *bitmap, int index, BOOL state)
 		bitmap[index>>BITMAP_SHIFT] &= ~(ONE << (index & BITMAP_MASK));
 }
 
-static inline BOOL
+static inline bool
 get_bitmap(bitmap_t *bitmap, int index)
 {
 	return (bitmap[index>>BITMAP_SHIFT] >> (index & BITMAP_MASK)) & 1;
@@ -160,36 +162,36 @@ get_bitmap(bitmap_t *bitmap, int index)
  */
 
 static inline void
-set_nodes_pullup(state_t *state, transnum_t t, BOOL s)
+set_nodes_pullup(state_t *state, transnum_t t, bool s)
 {
 	set_bitmap(state->nodes_pullup, t, s);
 }
 
-static inline BOOL
+static inline bool
 get_nodes_pullup(state_t *state, transnum_t t)
 {
 	return get_bitmap(state->nodes_pullup, t);
 }
 
 static inline void
-set_nodes_pulldown(state_t *state, transnum_t t, BOOL s)
+set_nodes_pulldown(state_t *state, transnum_t t, bool s)
 {
 	set_bitmap(state->nodes_pulldown, t, s);
 }
 
-static inline BOOL
+static inline bool
 get_nodes_pulldown(state_t *state, transnum_t t)
 {
 	return get_bitmap(state->nodes_pulldown, t);
 }
 
 static inline void
-set_nodes_value(state_t *state, transnum_t t, BOOL s)
+set_nodes_value(state_t *state, transnum_t t, bool s)
 {
 	set_bitmap(state->nodes_value, t, s);
 }
 
-static inline BOOL
+static inline bool
 get_nodes_value(state_t *state, transnum_t t)
 {
 	return get_bitmap(state->nodes_value, t);
@@ -202,12 +204,12 @@ get_nodes_value(state_t *state, transnum_t t)
  ************************************************************/
 
 static inline void
-set_transistors_on(state_t *state, transnum_t t, BOOL s)
+set_transistors_on(state_t *state, transnum_t t, bool s)
 {
 	set_bitmap(state->transistors_on, t, s);
 }
 
-static inline BOOL
+static inline bool
 get_transistors_on(state_t *state, transnum_t t)
 {
 	return get_bitmap(state->transistors_on, t);
@@ -289,7 +291,7 @@ group_get(state_t *state, count_t n)
 	return state->group[n];
 }
 
-static inline BOOL
+static inline bool
 group_contains(state_t *state, nodenum_t el)
 {
 	return get_bitmap(state->groupbitmap, el);
@@ -364,7 +366,7 @@ addAllNodesToGroup(state_t *state, nodenum_t node)
 	addNodeToGroup(state, node);
 }
 
-static inline BOOL
+static inline bool
 getGroupValue(state_t *state)
 {
 	switch (state->group_contains_value) {
@@ -375,6 +377,9 @@ getGroupValue(state_t *state)
 		case contains_vss:
 		case contains_pulldown:
 		case contains_nothing:
+			return NO;
+		default:
+			assert(!"unreachable");
 			return NO;
 	}
 }
@@ -389,7 +394,7 @@ recalcNode(state_t *state, nodenum_t node)
 	addAllNodesToGroup(state, node);
 
 	/* get the state of the group */
-	BOOL newv = getGroupValue(state);
+	bool newv = getGroupValue(state);
 
 	/*
 	 * - set all nodes to the group state
@@ -477,7 +482,7 @@ add_nodes_left_dependant(state_t *state, nodenum_t a, nodenum_t b)
 }
 
 state_t *
-setupNodesAndTransistors(netlist_transdefs *transdefs, BOOL *node_is_pullup, nodenum_t nodes, nodenum_t transistors, nodenum_t vss, nodenum_t vcc)
+setupNodesAndTransistors(netlist_transdefs *transdefs, bool *node_is_pullup, nodenum_t nodes, nodenum_t transistors, nodenum_t vss, nodenum_t vcc)
 {
 	/* allocate state */
 	state_t *state = malloc(sizeof(state_t));
@@ -518,9 +523,9 @@ setupNodesAndTransistors(netlist_transdefs *transdefs, BOOL *node_is_pullup, nod
 	state->group = malloc(state->nodes * sizeof(*state->group));
 	state->groupbitmap = calloc(WORDS_FOR_BITS(state->nodes), sizeof(*state->groupbitmap));
 	state->listin.list = state->list1;
-        state->listin.count = 0;
+	state->listin.count = 0;
 	state->listout.list = state->list2;
-        state->listout.count = 0;
+	state->listout.count = 0;
 
 	count_t i;
 	/* copy nodes into r/w data structure */
@@ -536,7 +541,7 @@ setupNodesAndTransistors(netlist_transdefs *transdefs, BOOL *node_is_pullup, nod
 		nodenum_t c1 = transdefs[i].c1;
 		nodenum_t c2 = transdefs[i].c2;
 		/* skip duplicate transistors */
-		BOOL found = NO;
+		bool found = NO;
 		for (count_t j2 = 0; j2 < j; j2++) {
 			if (state->transistors_gate[j2] == gate &&
 				((state->transistors_c1[j2] == c1 &&
@@ -615,16 +620,16 @@ stabilizeChip(state_t *state)
  ************************************************************/
 
 void
-setNode(state_t *state, nodenum_t nn, BOOL s)
+setNode(state_t *state, nodenum_t nn, bool s)
 {
-        set_nodes_pullup(state, nn, s);
-        set_nodes_pulldown(state, nn, !s);
-        listout_add(state, nn);
+	set_nodes_pullup(state, nn, s);
+	set_nodes_pulldown(state, nn, !s);
+	listout_add(state, nn);
 
-        recalcNodeList(state);
+	recalcNodeList(state);
 }
 
-BOOL
+bool
 isNodeHigh(state_t *state, nodenum_t nn)
 {
 	return get_nodes_value(state, nn);
@@ -636,7 +641,7 @@ isNodeHigh(state_t *state, nodenum_t nn)
  *
  ************************************************************/
 
-unsigned int
+uint32_t
 readNodes(state_t *state, int count, nodenum_t *nodelist)
 {
 	int result = 0;
@@ -650,6 +655,6 @@ readNodes(state_t *state, int count, nodenum_t *nodelist)
 void
 writeNodes(state_t *state, int count, nodenum_t *nodelist, int v)
 {
-	for (int i = 0; i < 8; i++, v >>= 1)
-	setNode(state, nodelist[i], v & 1);
+	for (int i = 0; i < count; i++, v >>= 1)
+		setNode(state, nodelist[i], v & 1);
 }

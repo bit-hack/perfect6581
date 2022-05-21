@@ -1761,7 +1761,7 @@ enum {
  * http://www.pagetable.com?p=401
  */
 
-BOOL
+bool
 netlist_6581_node_is_pullup[] = {
     // power
     0, 0, 0,

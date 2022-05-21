@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 void
-writeReg(void *state, unsigned char addr, unsigned char data)
+writeReg(void *state, uint8_t addr, uint8_t data)
 {
     step(state); // Phi2 low
 
@@ -16,8 +16,8 @@ writeReg(void *state, unsigned char addr, unsigned char data)
     setCs(state, 1);
 }
 
-unsigned char
-readReg(void *state, unsigned char addr)
+uint8_t
+readReg(void *state, uint8_t addr)
 {
     step(state); // Phi2 low
 
@@ -26,7 +26,7 @@ readReg(void *state, unsigned char addr)
     writeAddress(state, addr);
 
     step(state); // Phi2 high
-    unsigned char data = readData(state);
+    uint8_t data = readData(state);
 
     setCs(state, 1);
     return data;
@@ -58,7 +58,7 @@ main()
 
     // Set gate on
     writeReg(state, 0x12, 0x11);
-printf("*** gate on\n\n");
+    printf("*** gate on\n\n");
 
     for (int i=0; i<0x7f; i++)
     {
@@ -75,7 +75,7 @@ printf("*** gate on\n\n");
 
     // Set test on
     writeReg(state, 0x12, 0x08);
-printf("*** gate off\n\n");
+    printf("*** gate off\n\n");
 
     for (int i=0; i<0x7f; i++)
     {
