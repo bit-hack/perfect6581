@@ -33,7 +33,7 @@ uint16_t readTri3      (state_t *state);  // voice 3 triangle (16bit)
 bool     readPwm3      (state_t *state);  // voice 3 pwm
 bool     readTriXor3   (state_t *state);  // voice 3 ring-mod
 uint32_t readNoi3      (state_t *state);  // voice 3 noise
-uint16_t readWav3      (state_t *state);  // voice 3 output
+uint16_t readWav3      (state_t *state);  // voice 3 output (12bits)
 
 #ifdef __cplusplus
 }  // extern "C"
