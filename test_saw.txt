@@ -1,5 +1,6 @@
 2000 ff ff    settle
 0    0e ff    freq lo
 0    0f ff    freq hi
-0    12 20    saw
+0    12 20    noise
+8000 ff ff
 8000 ff ff

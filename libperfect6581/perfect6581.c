@@ -42,6 +42,10 @@
  *
  ************************************************************/
 
+void setRst(state_t *state, uint32_t val) {
+  setNode(state, res, val);
+}
+
 void setCs(state_t *state, uint32_t val) {
     setNode(state, cs, val);
 }
@@ -56,6 +60,10 @@ void writeData(state_t *state, uint8_t d) {
 
 void writeAddress(state_t *state, uint8_t d) {
     writeNodes(state, 5, (nodenum_t[]){ A0, A1, A2, A3, A4 }, d);
+}
+
+uint8_t readRst(state_t *state) {
+  return isNodeHigh(state, res);
 }
 
 uint8_t readClk(state_t *state) {
@@ -245,12 +253,11 @@ uint8_t readEnv3Rel(state_t *state) {
 static uint32_t cycle;
 
 void step(state_t *state) {
-    bool clk = !isNodeHigh(state, Phi2);
-
-    /* invert clock */
+    // flip the clock
+    const bool clk = !isNodeHigh(state, Phi2);
+    // invert clock
     setNode(state, Phi2, clk);
     recalcNodeList(state);
-
     cycle++;
 }
 
@@ -261,12 +268,13 @@ state_t *initAndResetChip() {
 
     debug("nodes: %d\ntransistors: %d\n\n", nodes, transistors);
 
-    state_t *state = setupNodesAndTransistors(netlist_6581_transdefs,
-                                                netlist_6581_node_is_pullup,
-                                                nodes,
-                                                transistors,
-                                                GND,
-                                                Vcc);
+    state_t *state = setupNodesAndTransistors(
+      netlist_6581_transdefs,
+      netlist_6581_node_is_pullup,
+      nodes,
+      transistors,
+      GND,
+      Vcc);
 
     setNode(state, cs, 1);
     setNode(state, res, 0);

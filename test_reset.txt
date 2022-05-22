@@ -1,0 +1,7 @@
+4000 ff ff
+0    fe 00  reset
+2000 ff ff
+0    fe 00  reset
+2000 ff ff
+0    fe 00  reset
+2000 ff ff

@@ -16,11 +16,13 @@ state_t *initAndResetChip(void);
 void     step          (state_t *state);
 void     chipStatus    (state_t *state);
 
+void     setRst        (state_t *state, uint32_t);
 void     setCs         (state_t *state, uint32_t);
 void     setRw         (state_t *state, uint32_t);
 void     writeAddress  (state_t *state, uint8_t);
 void     writeData     (state_t *state, uint8_t);
 
+uint8_t  readRst       (state_t *state);
 uint8_t  readClk       (state_t *state);
 uint8_t  readCs        (state_t *state);
 uint8_t  readRw        (state_t *state);

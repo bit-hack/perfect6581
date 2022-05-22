@@ -1,0 +1,7 @@
+2000 ff ff    settle
+0    13 22    att-dec
+0    14 22    sus-rel
+0    12 01    gate on
+8000 ff ff
+0    12 00    gate off
+8000 ff ff

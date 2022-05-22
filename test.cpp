@@ -1,9 +1,11 @@
 #include <cstdio>
 #include <memory>
 #include <bitset>
+#include <deque>
 
 #include "libperfect6581/perfect6581.h"
 #include "vcd-writer/vcd_writer.h"
+#include "libicesid/icesid.h"
 
 // voice3:
 //
@@ -13,13 +15,13 @@
 //   11  ....pppp  p-pulse wave duty cycle high
 //
 //   12  npstTRSG  
-//              '- G-gate       01
-//             '-- S-sync       02
-//            '--- R-ring       04
-//           '---- T-test       08
-//          '----- t-triangle   10
-//         '------ s-saw        20
-//        '------- p-pulse      40
+//       |||||||'- G-gate       01
+//       ||||||'-- S-sync       02
+//       |||||'--- R-ring       04
+//       ||||'---- T-test       08
+//       |||'----- t-triangle   10
+//       ||'------ s-saw        20
+//       |'------- p-pulse      40
 //       '-------- n-noise      80
 //
 //   13  aaaadddd  a-attack d-decay
@@ -31,21 +33,21 @@
 
 struct perfect6581 {
 
-  perfect6581()
-    : state(nullptr)
-    , time(0)
+  perfect6581(vcd::TimeStamp &time, vcd::VCDWriter *vcd)
+    : state      (nullptr)
+    , time       (time)
+    , vcd        (vcd)
+    , resetCycles(20)
   {
   }
 
-  void init(const char *vcd_path) {
+  void init() {
     state = initAndResetChip();
 
     time = 0;
 
-    vcd::HeadPtr header = vcd::makeVCDHeader(vcd::TimeScale::ONE, vcd::TimeScaleUnit::ns, vcd::utils::now());
-    vcd.reset(new vcd::VCDWriter{ vcd_path, header });
-
     vcd_var_clk        = vcd->register_var("perfect6581",      "clk",   vcd::VariableType::wire,      1);
+    vcd_var_rst        = vcd->register_var("perfect6581",      "rst",   vcd::VariableType::wire,      1);
     vcd_var_cs         = vcd->register_var("perfect6581",      "cs",    vcd::VariableType::wire,      1);
     vcd_var_rw         = vcd->register_var("perfect6581",      "rw",    vcd::VariableType::wire,      1);
     vcd_var_addr       = vcd->register_var("perfect6581",      "addr",  vcd::VariableType::wire,      5);
@@ -67,9 +69,29 @@ struct perfect6581 {
   }
 
   void step() {
+
+    // if we are about to step a posedge
+    if (readClk(state) == 0) {
+      if (!writes.empty() && resetCycles == 0) {
+        const auto w = writes.front();
+        writes.pop_front();
+        setCs       (state, 0);
+        setRw       (state, 0);
+        writeAddress(state, w.first);
+        writeData   (state, w.second);
+      }
+    }
+
+    // handle reset
+    setRst(state, (resetCycles > 0) ? 0 : 1);
+    resetCycles -= resetCycles > 0;
+
     ::step(state);
 
+    setCs(state, 1);  // deassert CS
+
     vcd->change(vcd_var_clk,  time, std::bitset<1>(readClk(state)).to_string());
+    vcd->change(vcd_var_rst,  time, std::bitset<1>(readRst(state)).to_string());
     vcd->change(vcd_var_cs,   time, std::bitset<1>(readCs(state)).to_string());
     vcd->change(vcd_var_rw,   time, std::bitset<1>(readRw(state)).to_string());
     vcd->change(vcd_var_addr, time, std::bitset<5>(readAddress(state)).to_string());
@@ -95,30 +117,27 @@ struct perfect6581 {
     vcd->change(vcd_var_env3_dec, time, std::bitset<4>(readEnv3Dec(state)).to_string());
     vcd->change(vcd_var_env3_sus, time, std::bitset<4>(readEnv3Sus(state)).to_string());
     vcd->change(vcd_var_env3_rel, time, std::bitset<4>(readEnv3Rel(state)).to_string());
-
-    ++time;
   }
 
   void write_reg(uint8_t addr, uint8_t data) {
-    step();
-    setCs(state, 0);
-    setRw(state, 0);
-    writeAddress(state, addr);
-    writeData(state, data);
-    step();
-    setCs(state, 1);
+    writes.push_back(std::pair<uint8_t, uint8_t>(addr, data));
+  }
+
+  void reset() {
+    resetCycles = 20;
   }
 
   void finish() {
     vcd->close();
   }
 
+  vcd::TimeStamp &time;
   state_t *state;
-  vcd::TimeStamp time;
 
-  std::unique_ptr<vcd::VCDWriter> vcd;
+  vcd::VCDWriter *vcd;
 
   vcd::VarPtr vcd_var_clk;
+  vcd::VarPtr vcd_var_rst;
   vcd::VarPtr vcd_var_cs;
   vcd::VarPtr vcd_var_rw;
   vcd::VarPtr vcd_var_addr;
@@ -137,10 +156,13 @@ struct perfect6581 {
   vcd::VarPtr vcd_var_env3_dec;
   vcd::VarPtr vcd_var_env3_sus;
   vcd::VarPtr vcd_var_env3_rel;
+
+  std::deque<std::pair<uint8_t, uint8_t>> writes;
+
+  uint32_t resetCycles;
 };
 
 int main(int argc, char **args) {
-
 
     if (argc <= 1) {
       fprintf(stderr, "usage: %s input.txt [output.vcd]", args[0]);
@@ -155,8 +177,20 @@ int main(int argc, char **args) {
 
     const char *vcd_path = argc >= 3 ? args[2] : "output.vcd";
 
-    perfect6581 sid;
-    sid.init(vcd_path);
+
+    vcd::HeadPtr header = vcd::makeVCDHeader(
+      vcd::TimeScale::ONE,
+      vcd::TimeScaleUnit::ns,
+      vcd::utils::now());
+    vcd::VCDWriter vcd{ vcd_path, header };
+
+    vcd::TimeStamp time = 0;
+
+    perfect6581 psid{ time, &vcd };
+    icesid      isid{ time, &vcd };
+
+    psid.init();
+    isid.init();
 
     while (!feof(fd)) {
 
@@ -169,13 +203,23 @@ int main(int argc, char **args) {
         break;
       }
 
+      if (reg == 0xfe) {
+        psid.reset();
+        isid.reset();
+      }
+
       if (reg <= 0x1c && val <= 0xff) {
-        sid.write_reg(reg, val);
+        psid.write_reg(reg, val);
+        isid.write_reg(reg, val);
       }
 
       for (uint32_t i = 0; i < cycles; ++i) {
-        sid.step();
-        sid.step();
+        psid.step();
+        isid.step();
+        ++time;
+        psid.step();
+        isid.step();
+        ++time;
       }
     }
 
@@ -183,5 +227,6 @@ int main(int argc, char **args) {
       fclose(fd);
     }
 
-    sid.finish();
+    psid.finish();
+    isid.finish();
 }
