@@ -1,5 +1,7 @@
 2000 ff ff    settle
 0    0e ff    freq lo
 0    0f ff    freq hi
-0    12 20    saw
+0    10 00    pwm lo
+0    11 04    pwm hi
+0    12 40    pulse
 8000 ff ff

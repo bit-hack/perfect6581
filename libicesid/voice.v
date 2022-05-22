@@ -101,8 +101,8 @@ module sid_voice (
   reg [11:0] wavNoise;
   always @(posedge clk) begin
     wavSaw   <= phase[23:12];
-    wavPulse <= (phase[23:12] >= regPW) ? 12'h000 : 12'hfff;
-    wavTri   <= ((phase[23] ^ (regRingMod & iExtMSB)) ? phase[22:11] : ~phase[22:11]);
+    wavPulse <= (phase[23:12] <= regPW) ? 12'h000 : 12'hfff;
+    wavTri   <= ((phase[23] ^ (regRingMod & iExtMSB)) ? ~phase[22:11] : phase[22:11]);
     wavNoise <= {lfsr[20], lfsr[18], lfsr[14], lfsr[11], lfsr[9], lfsr[5], lfsr[2], lfsr[0], 4'b0};
   end
 
