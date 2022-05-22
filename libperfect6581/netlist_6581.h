@@ -1367,6 +1367,7 @@ enum {
     // ADSR gates
     env3_dcy_gate,
     env3_rel_gate,
+
     // ADSR registers
     env3_d0_1,
     env3_d0_2,

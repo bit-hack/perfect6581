@@ -6,9 +6,7 @@
 extern "C" {
 #endif
 
-#ifndef INCLUDED_FROM_NETLIST_SIM_C
-#  define state_t void
-#endif
+typedef struct state_t state_t;
 
 state_t *setupNodesAndTransistors(
   netlist_transdefs *transdefs,

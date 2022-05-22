@@ -1,5 +1,4 @@
-#ifndef _TYPES_H_
-#define _TYPES_H_
+#pragma once
 
 #include <stdint.h>
 
@@ -7,12 +6,12 @@ typedef uint32_t bool;
 typedef uint16_t nodenum_t;
 
 typedef struct {
-	int gate;
-	int c1;
-	int c2;
+	int32_t gate;
+	int32_t c1;
+	int32_t c2;
 } netlist_transdefs;
 
-#define YES 1
-#define NO 0
-
-#endif
+enum {
+   YES = 1,
+   NO  = 0
+};

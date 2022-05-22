@@ -44,8 +44,8 @@ typedef uint16_t count_t;
  *
  ************************************************************/
 
-#if 0 /* faster on 64 bit CPUs */
-typedef unsigned long long bitmap_t;
+#if 1 /* faster on 64 bit CPUs */
+typedef uint64_t bitmap_t;
 #define BITMAP_SHIFT 6
 #define BITMAP_MASK 63
 #define ONE 1ULL
@@ -62,7 +62,7 @@ typedef struct {
 	count_t count;
 } list_t;
 
-typedef struct {
+typedef struct state_t {
 	nodenum_t nodes;
 	nodenum_t transistors;
 	nodenum_t vss;
@@ -117,9 +117,7 @@ typedef struct {
  *
  ************************************************************/
 
-#define INCLUDED_FROM_NETLIST_SIM_C
 #include "netlist_sim.h"
-#undef INCLUDED_FROM_NETLIST_SIM_C
 
 /************************************************************
  *

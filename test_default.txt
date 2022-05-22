@@ -1,0 +1,9 @@
+0  11 a4    pw3 hi
+0  10 57    pw3 lo
+0  0e 00    freq3 lo
+0  0f 10    freq3 hi
+0  14 e0    sr
+0  12 11    gate on
+7f ff ff
+0  12 08    gate off
+7f ff ff
