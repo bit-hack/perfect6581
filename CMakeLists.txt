@@ -12,22 +12,22 @@ add_library(
   libperfect6581/types.h
 )
 
-add_library(
-  libvcd-writer
-  vcd-writer/vcd_utils.cpp
-  vcd-writer/vcd_writer.cpp
-  vcd-writer/vcd_writer.h
+find_package(verilator HINTS $ENV{VERILATOR_ROOT} ${VERILATOR_ROOT})
+if (NOT verilator_FOUND)
+  message(FATAL_ERROR "Verilator not found. Set VERILATOR_ROOT env var.")
+endif()
+
+add_executable(
+  driver
+  src/driver.cpp
+  src/perfect6581.h
 )
 
 add_library(
   libicesid
   src/icesid.h
-  src/icesid.cpp)
-
-find_package(verilator HINTS $ENV{VERILATOR_ROOT} ${VERILATOR_ROOT})
-if (NOT verilator_FOUND)
-  message(FATAL_ERROR "Verilator not found. Set VERILATOR_ROOT env var.")
-endif()
+  src/icesid.cpp
+)
 
 file(GLOB ICE_SRC icesid/icesid/*.v icesid/verilator/*.v)
 verilate(libicesid
@@ -37,14 +37,8 @@ verilate(libicesid
   TRACE
 )
 
-add_executable(
-  test
-  src/test.cpp
-)
-
 target_link_libraries(
-  test
+  driver
   libperfect6581
   libicesid
-  libvcd-writer
 )
