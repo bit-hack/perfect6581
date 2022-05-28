@@ -1,7 +1,15 @@
-2000 ff ff    settle
+400  ff ff    settle
 0    0e ff    freq lo
 0    0f ff    freq hi
 0    10 00    pwm lo
-0    11 04    pwm hi
+0    11 00    pwm hi
 0    12 40    pulse
-8000 ff ff
+400  11 04    pwm hi
+400  11 08    pwm hi
+400  11 0c    pwm hi
+400  11 10    pwm hi
+400  11 14    pwm hi
+400  11 18    pwm hi
+400  11 1c    pwm hi
+400  11 ff    pwm hi
+400  ff ff

@@ -1,0 +1,3 @@
+[submodule "icesid"]
+	path = icesid
+	url = git@github.com:bit-hack/icesid.git

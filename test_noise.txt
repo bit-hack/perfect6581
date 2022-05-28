@@ -1,4 +1,9 @@
 0    0e ff    freq3 lo
 0    0f ff    freq3 hi
 0    12 80    noise on
-ffff ff ff
+0    fe 00  reset
+80   ff ff
+0    fe 00  reset
+0    0e ff    freq3 lo
+0    0f ff    freq3 hi
+80   ff ff

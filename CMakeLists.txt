@@ -21,15 +21,15 @@ add_library(
 
 add_library(
   libicesid
-  libicesid/icesid.h
-  libicesid/icesid.cpp)
+  src/icesid.h
+  src/icesid.cpp)
 
 find_package(verilator HINTS $ENV{VERILATOR_ROOT} ${VERILATOR_ROOT})
 if (NOT verilator_FOUND)
   message(FATAL_ERROR "Verilator not found. Set VERILATOR_ROOT env var.")
 endif()
 
-file(GLOB ICE_SRC libicesid/*.v)
+file(GLOB ICE_SRC icesid/icesid/*.v icesid/verilator/*.v)
 verilate(libicesid
   SOURCES ${ICE_SRC}
   TOP_MODULE sid
@@ -39,7 +39,7 @@ verilate(libicesid
 
 add_executable(
   test
-  test.cpp
+  src/test.cpp
 )
 
 target_link_libraries(

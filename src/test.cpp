@@ -3,9 +3,9 @@
 #include <bitset>
 #include <deque>
 
-#include "libperfect6581/perfect6581.h"
-#include "vcd-writer/vcd_writer.h"
-#include "libicesid/icesid.h"
+#include "../libperfect6581/perfect6581.h"
+#include "../vcd-writer/vcd_writer.h"
+#include "../src/icesid.h"
 
 // voice3:
 //
@@ -46,26 +46,28 @@ struct perfect6581 {
 
     time = 0;
 
-    vcd_var_clk        = vcd->register_var("perfect6581",      "clk",   vcd::VariableType::wire,      1);
-    vcd_var_rst        = vcd->register_var("perfect6581",      "rst",   vcd::VariableType::wire,      1);
-    vcd_var_cs         = vcd->register_var("perfect6581",      "cs",    vcd::VariableType::wire,      1);
-    vcd_var_rw         = vcd->register_var("perfect6581",      "rw",    vcd::VariableType::wire,      1);
-    vcd_var_addr       = vcd->register_var("perfect6581",      "addr",  vcd::VariableType::wire,      5);
-    vcd_var_data       = vcd->register_var("perfect6581",      "data",  vcd::VariableType::wire,      8);
-    vcd_var_env3       = vcd->register_var("perfect6581",      "env3",  vcd::VariableType::integer,   8);
-    vcd_var_wav3       = vcd->register_var("perfect6581",      "wav3",  vcd::VariableType::integer,  12);
-    vcd_var_ctl3_gate  = vcd->register_var("perfect6581.ctl3", "gate",  vcd::VariableType::wire,      1);
-    vcd_var_ctl3_sync  = vcd->register_var("perfect6581.ctl3", "sync",  vcd::VariableType::wire,      1);
-    vcd_var_ctl3_xor   = vcd->register_var("perfect6581.ctl3", "xor",   vcd::VariableType::wire,      1);
-    vcd_var_ctl3_test  = vcd->register_var("perfect6581.ctl3", "test",  vcd::VariableType::wire,      1);
-    vcd_var_ctl3_tri   = vcd->register_var("perfect6581.ctl3", "tri",   vcd::VariableType::wire,      1);
-    vcd_var_ctl3_saw   = vcd->register_var("perfect6581.ctl3", "saw",   vcd::VariableType::wire,      1);
-    vcd_var_ctl3_pulse = vcd->register_var("perfect6581.ctl3", "pulse", vcd::VariableType::wire,      1);
-    vcd_var_ctl3_noise = vcd->register_var("perfect6581.ctl3", "noise", vcd::VariableType::wire,      1);
-    vcd_var_env3_att   = vcd->register_var("perfect6581.env3", "att",   vcd::VariableType::integer,   4);
-    vcd_var_env3_dec   = vcd->register_var("perfect6581.env3", "dec",   vcd::VariableType::integer,   4);
-    vcd_var_env3_sus   = vcd->register_var("perfect6581.env3", "sus",   vcd::VariableType::integer,   4);
-    vcd_var_env3_rel   = vcd->register_var("perfect6581.env3", "rel",   vcd::VariableType::integer,   4);
+    vcd_var_clk        = vcd->register_var("perfect6581",      "clk",    vcd::VariableType::wire,      1);
+    vcd_var_rst        = vcd->register_var("perfect6581",      "rst",    vcd::VariableType::wire,      1);
+    vcd_var_cs         = vcd->register_var("perfect6581",      "cs",     vcd::VariableType::wire,      1);
+    vcd_var_rw         = vcd->register_var("perfect6581",      "rw",     vcd::VariableType::wire,      1);
+    vcd_var_addr       = vcd->register_var("perfect6581",      "addr",   vcd::VariableType::wire,      5);
+    vcd_var_data       = vcd->register_var("perfect6581",      "data",   vcd::VariableType::wire,      8);
+    vcd_var_env3       = vcd->register_var("perfect6581",      "env3",   vcd::VariableType::integer,   8);
+    vcd_var_wav3       = vcd->register_var("perfect6581",      "wav3",   vcd::VariableType::integer,  12);
+    vcd_var_ctl3_gate  = vcd->register_var("perfect6581.ctl3", "gate",   vcd::VariableType::wire,      1);
+    vcd_var_ctl3_sync  = vcd->register_var("perfect6581.ctl3", "sync",   vcd::VariableType::wire,      1);
+    vcd_var_ctl3_xor   = vcd->register_var("perfect6581.ctl3", "xor",    vcd::VariableType::wire,      1);
+    vcd_var_ctl3_test  = vcd->register_var("perfect6581.ctl3", "test",   vcd::VariableType::wire,      1);
+    vcd_var_ctl3_tri   = vcd->register_var("perfect6581.ctl3", "tri",    vcd::VariableType::wire,      1);
+    vcd_var_ctl3_saw   = vcd->register_var("perfect6581.ctl3", "saw",    vcd::VariableType::wire,      1);
+    vcd_var_ctl3_pulse = vcd->register_var("perfect6581.ctl3", "pulse",  vcd::VariableType::wire,      1);
+    vcd_var_ctl3_noise = vcd->register_var("perfect6581.ctl3", "noise",  vcd::VariableType::wire,      1);
+    vcd_var_env3_att   = vcd->register_var("perfect6581.env3", "att",    vcd::VariableType::integer,   4);
+    vcd_var_env3_dec   = vcd->register_var("perfect6581.env3", "dec",    vcd::VariableType::integer,   4);
+    vcd_var_env3_sus   = vcd->register_var("perfect6581.env3", "sus",    vcd::VariableType::integer,   4);
+    vcd_var_env3_rel   = vcd->register_var("perfect6581.env3", "rel",    vcd::VariableType::integer,   4);
+    vcd_var_noise3     = vcd->register_var("perfect6581",      "noise3", vcd::VariableType::wire,     23);
+    vcd_var_phase3     = vcd->register_var("perfect6581",      "phase3", vcd::VariableType::wire,     23);
   }
 
   void step() {
@@ -90,12 +92,13 @@ struct perfect6581 {
 
     setCs(state, 1);  // deassert CS
 
-    vcd->change(vcd_var_clk,  time, std::bitset<1>(readClk(state)).to_string());
-    vcd->change(vcd_var_rst,  time, std::bitset<1>(readRst(state)).to_string());
-    vcd->change(vcd_var_cs,   time, std::bitset<1>(readCs(state)).to_string());
-    vcd->change(vcd_var_rw,   time, std::bitset<1>(readRw(state)).to_string());
-    vcd->change(vcd_var_addr, time, std::bitset<5>(readAddress(state)).to_string());
-    vcd->change(vcd_var_data, time, std::bitset<8>(readData(state)).to_string());
+    vcd->change(vcd_var_clk,    time, std::bitset<1> (readClk(state)).to_string());
+    vcd->change(vcd_var_rst,    time, std::bitset<1> (readRst(state)).to_string());
+    vcd->change(vcd_var_cs,     time, std::bitset<1> (readCs(state)).to_string());
+    vcd->change(vcd_var_rw,     time, std::bitset<1> (readRw(state)).to_string());
+    vcd->change(vcd_var_addr,   time, std::bitset<5> (readAddress(state)).to_string());
+    vcd->change(vcd_var_data,   time, std::bitset<8> (readData(state)).to_string());
+    vcd->change(vcd_var_phase3, time, std::bitset<23>(readAcc3(state)).to_string());
 
     uint8_t env3 = readEnvCnt(state);
     vcd->change(vcd_var_env3, time, std::bitset<8>(env3).to_string());
@@ -117,6 +120,8 @@ struct perfect6581 {
     vcd->change(vcd_var_env3_dec, time, std::bitset<4>(readEnv3Dec(state)).to_string());
     vcd->change(vcd_var_env3_sus, time, std::bitset<4>(readEnv3Sus(state)).to_string());
     vcd->change(vcd_var_env3_rel, time, std::bitset<4>(readEnv3Rel(state)).to_string());
+
+    vcd->change(vcd_var_noise3, time, std::bitset<23>(readNoi3(state)).to_string());
   }
 
   void write_reg(uint8_t addr, uint8_t data) {
@@ -136,6 +141,7 @@ struct perfect6581 {
 
   vcd::VCDWriter *vcd;
 
+  vcd::VarPtr vcd_var_noise3;
   vcd::VarPtr vcd_var_clk;
   vcd::VarPtr vcd_var_rst;
   vcd::VarPtr vcd_var_cs;
@@ -156,6 +162,7 @@ struct perfect6581 {
   vcd::VarPtr vcd_var_env3_dec;
   vcd::VarPtr vcd_var_env3_sus;
   vcd::VarPtr vcd_var_env3_rel;
+  vcd::VarPtr vcd_var_phase3;
 
   std::deque<std::pair<uint8_t, uint8_t>> writes;
 

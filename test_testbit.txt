@@ -1,0 +1,28 @@
+1000 ff ff    settle
+0    0e ff    freq lo
+0    0f ff    freq hi
+0    12 10    tri
+40   ff ff
+0    12 18    tri, test
+40   ff ff
+0    12 10    tri
+200  ff ff
+0    12 20    saw
+40   ff ff
+0    12 28    saw, test
+40   ff ff
+0    12 20    saw
+200  ff ff
+0    12 40    pulse
+40   ff ff
+0    12 48    pulse, test
+40   ff ff
+0    12 40    pulse
+200  ff ff
+200  ff ff
+0    12 80    noise
+40   ff ff
+0    12 88    noise, test
+40   ff ff
+0    12 80    noise
+200  ff ff
